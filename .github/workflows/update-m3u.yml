@@ -76,12 +76,20 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if [ ! -f combined.m3u ] || ! git diff --quiet combined.m3u; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected in combined.m3u (or file is new)"
+          # Check if file exists in git (is tracked)
+          if git ls-files --error-unmatch combined.m3u >/dev/null 2>&1; then
+            # File is tracked, check for changes
+            if ! git diff --quiet combined.m3u; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+              echo "Changes detected in existing combined.m3u"
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT
+              echo "No changes detected in combined.m3u"
+            fi
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No changes detected in combined.m3u"
+            # File is not tracked (new file)
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "New file combined.m3u will be added"
           fi
 
       - name: Commit and push changes
