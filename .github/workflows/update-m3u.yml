@@ -76,12 +76,12 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet combined.m3u 2>/dev/null; then
+          if [ ! -f combined.m3u ] || ! git diff --quiet combined.m3u; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in combined.m3u (or file is new)"
+          else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected in combined.m3u"
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected in combined.m3u"
           fi
 
       - name: Commit and push changes
