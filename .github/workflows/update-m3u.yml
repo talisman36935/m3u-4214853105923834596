@@ -1,0 +1,94 @@
+name: Update Combined M3U Playlist
+
+on:
+  schedule:
+    # Run every Sunday at 6 AM UTC
+    - cron: "0 6 * * 7"
+  workflow_dispatch: # Allow manual triggering
+  push:
+    paths:
+      - "custom.mcu"
+
+jobs:
+  update-m3u:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download M3U files
+        run: |
+          echo "Downloading M3U files..."
+          curl -sSL "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/pl.m3u" -o pl.m3u
+          curl -sSL "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/de.m3u" -o de.m3u
+          curl -sSL "https://raw.githubusercontent.com/josxha/german-tv-m3u/main/german-tv.m3u" -o german-tv.m3u
+
+          echo "Downloaded files:"
+          ls -la *.m3u
+
+      - name: Combine M3U files
+        run: |
+          echo "Creating combined M3U playlist..."
+
+          # Start with the M3U header
+          echo "#EXTM3U" > combined.m3u
+          echo "" >> combined.m3u
+
+          # Add custom entries first (skip the #EXTM3U header if present)
+          echo "# Custom Channels" >> combined.m3u
+          tail -n +2 custom.mcu >> combined.m3u
+          echo "" >> combined.m3u
+
+          # Add Polish channels (skip the #EXTM3U header if present)
+          echo "# Polish Channels" >> combined.m3u
+          if head -1 pl.m3u | grep -q "#EXTM3U"; then
+            tail -n +2 pl.m3u >> combined.m3u
+          else
+            cat pl.m3u >> combined.m3u
+          fi
+          echo "" >> combined.m3u
+
+          # Add German channels from iptv-org (skip the #EXTM3U header if present)
+          echo "# German Channels (iptv-org)" >> combined.m3u
+          if head -1 de.m3u | grep -q "#EXTM3U"; then
+            tail -n +2 de.m3u >> combined.m3u
+          else
+            cat de.m3u >> combined.m3u
+          fi
+          echo "" >> combined.m3u
+
+          # Add German channels from josxha (skip the #EXTM3U header if present)
+          echo "# German Channels (josxha)" >> combined.m3u
+          if head -1 german-tv.m3u | grep -q "#EXTM3U"; then
+            tail -n +2 german-tv.m3u >> combined.m3u
+          else
+            cat german-tv.m3u >> combined.m3u
+          fi
+
+          # Clean up temporary files
+          rm -f pl.m3u de.m3u german-tv.m3u
+
+          echo "Combined M3U file created with $(wc -l < combined.m3u) lines"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet combined.m3u 2>/dev/null; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in combined.m3u"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in combined.m3u"
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add combined.m3u
+          git commit -m "Update combined M3U playlist - $(date '+%Y-%m-%d %H:%M:%S UTC')"
+          git push
