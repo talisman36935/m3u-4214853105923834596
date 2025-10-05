@@ -136,6 +136,8 @@ https://str.onnetwork.tv/hls/onnet-358726_hi/index.m3u8
 https://cdn-s-lb2.pluscdn.pl/lv/1517830/349/hls/f03a76f3/masterlist.m3u8
 #EXTINF:-1 tvg-id="4FunKids.pl@SD",4 Fun Kids (576i) [[Not 24/7]]
 https://stream.4fun.tv:8889/hls/4fk_high/index.m3u8
+#EXTINF:-1 tvg-id="DisneyXD.pl",Disney XD (576p)
+http://185.236.229.62:9981/play/a07c
 
 # German Channels (iptv-org)
 #EXTINF:-1 tvg-id="123tv.de",1-2-3 TV (270p)
@@ -648,8 +650,6 @@ https://zdf-hls-16.akamaized.net/hls/live/2016499/de/high/master.m3u8
 https://viamotionhsi.netplus.ch/live/eds/zdfneohd/browser-dash/zdfneohd.mpd
 #EXTINF:-1 tvg-id="ZDFneo.de@HD",ZDFneo HD (720p)
 https://viamotionhsi.netplus.ch/live/eds/zdfneohd/browser-HLS8/zdfneohd.m3u8
-#EXTINF:-1 tvg-id="ZeeOne.de",Zee One
-https://ef56ef401101403a8b06f1dec29ef1eb.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Samsung-de_ZeeOne/playlist.m3u8
 #EXTINF:-1 tvg-id="ZweiMusicTelevision.de",ZWEI2 Music (1080p)
 https://cdne.folxplay.tv/folx-trz/streams/ch-2/master.m3u8
 
